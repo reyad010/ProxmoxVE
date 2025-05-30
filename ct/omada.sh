@@ -36,7 +36,7 @@ function update_script() {
   | $STD tee /etc/apt/sources.list.d/mongodb-org-4.4.list
   $STD apt-get update
 
-  msg_ok "Updated MongoDB to $MONGODB_VERSION"
+  msg_ok "Updated MongoDB"
 
   msg_info "Checking if right Azul Zulu Java is installed"
   java_version=$(java -version 2>&1 | awk -F[\"_] '/version/ {print $2}')

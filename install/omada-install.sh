@@ -33,7 +33,7 @@ if ! dpkg -l | grep -q 'libssl1.1'; then
   msg_ok "Installed libssl1.1"
 fi
 
-msg_info "Installing MongoDB $MONGODB_VERSION"
+msg_info "Installing MongoDB"
 $STD apt-get update
 $STD apt-get install -y curl gnupg
 wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | $STD apt-key add -
@@ -48,7 +48,7 @@ $STD apt-get install -y \
   mongodb-org-mongos=4.4.24 \
   mongodb-org-tools=4.4.24
 
-msg_ok "Installed MongoDB $MONGODB_VERSION"
+msg_ok "Installed MongoDB"
 
 msg_info "Installing Omada Controller"
 OMADA_URL=$(curl -fsSL "https://support.omadanetworks.com/en/download/software/omada-controller/" |
