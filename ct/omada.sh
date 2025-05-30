@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source <(curl -fsSL https://raw.githubusercontent.com/reyad010/ProxmoxVE/main/misc/build.func)
 # Copyright (c) 2021-2025 tteck
 # Author: tteck (tteckster)
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
@@ -29,17 +29,13 @@ function update_script() {
   fi
 
   msg_info "Updating MongoDB"
-  MONGODB_VERSION="7.0"
-  if ! lscpu | grep -q 'avx'; then
-    MONGODB_VERSION="4.4"
-    msg_error "No AVX detected: TP-Link Canceled Support for Old MongoDB for Debian 12\n https://www.tp-link.com/baltic/support/faq/4160/"
-    exit 1
-  fi
-
-  curl -fsSL "https://www.mongodb.org/static/pgp/server-${MONGODB_VERSION}.asc" | gpg --dearmor >/usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg
-  echo "deb [signed-by=/usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg] http://repo.mongodb.org/apt/debian $(grep '^VERSION_CODENAME=' /etc/os-release | cut -d'=' -f2)/mongodb-org/${MONGODB_VERSION} main" >/etc/apt/sources.list.d/mongodb-org-${MONGODB_VERSION}.list
   $STD apt-get update
-  $STD apt-get install -y --only-upgrade mongodb-org
+  $STD apt-get install -y curl gnupg
+  wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | $STD apt-key add -
+  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" \
+  | $STD tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+  $STD apt-get update
+
   msg_ok "Updated MongoDB to $MONGODB_VERSION"
 
   msg_info "Checking if right Azul Zulu Java is installed"

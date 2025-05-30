@@ -17,15 +17,6 @@ msg_info "Installing Dependencies"
 $STD apt-get install -y jsvc
 msg_ok "Installed Dependencies"
 
-msg_info "Checking CPU Features"
-if lscpu | grep -q 'avx'; then
-  MONGODB_VERSION="7.0"
-  msg_ok "AVX detected: Using MongoDB 7.0"
-else
-  msg_error "No AVX detected: TP-Link Canceled Support for Old MongoDB for Debian 12\n https://www.tp-link.com/baltic/support/faq/4160/"
-  exit 0
-fi
-
 msg_info "Installing Azul Zulu Java"
 curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xB1998361219BD9C9" -o "/etc/apt/trusted.gpg.d/zulu-repo.asc"
 curl -fsSL "https://cdn.azul.com/zulu/bin/zulu-repo_1.0.0-3_all.deb" -o zulu-repo.deb
@@ -36,17 +27,19 @@ msg_ok "Installed Azul Zulu Java"
 
 msg_info "Installing libssl (if needed)"
 if ! dpkg -l | grep -q 'libssl1.1'; then
-  curl -fsSL "https://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u2_amd64.deb" -o "/tmp/libssl.deb"
+  curl -fsSL "https://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1w-0+deb11u3_amd64.deb" -o "/tmp/libssl.deb"
   $STD dpkg -i /tmp/libssl.deb
   rm -f /tmp/libssl.deb
   msg_ok "Installed libssl1.1"
 fi
 
 msg_info "Installing MongoDB $MONGODB_VERSION"
-curl -fsSL "https://www.mongodb.org/static/pgp/server-${MONGODB_VERSION}.asc" | gpg --dearmor >/usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg
-echo "deb [signed-by=/usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg] http://repo.mongodb.org/apt/debian $(grep '^VERSION_CODENAME=' /etc/os-release | cut -d'=' -f2)/mongodb-org/${MONGODB_VERSION} main" >/etc/apt/sources.list.d/mongodb-org-${MONGODB_VERSION}.list
 $STD apt-get update
-$STD apt-get install -y mongodb-org
+$STD apt-get install -y curl gnupg
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | $STD apt-key add -
+echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" |
+  $STD tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+$STD apt-get update
 msg_ok "Installed MongoDB $MONGODB_VERSION"
 
 msg_info "Installing Omada Controller"
